@@ -1,0 +1,3 @@
+numpy==1.26.4 #mediapipe rab np<2.x.x
+opencv-python==4.11.0.86
+mediapipe==0.10.21
