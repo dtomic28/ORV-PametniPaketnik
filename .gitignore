@@ -1,6 +1,8 @@
-ORVpaketnik/
+# odstranta ku bota zrihtala LFS
 face_recognition/images/Danijel/originals/
 face_recognition/images/Tadej/originals/
+
+
 # Created by https://www.toptal.com/developers/gitignore/api/flask
 # Edit at https://www.toptal.com/developers/gitignore?templates=flask
 
@@ -138,6 +140,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+ORVpaketnik/
 
 # Spyder project settings
 .spyderproject
