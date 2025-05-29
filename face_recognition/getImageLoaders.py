@@ -12,7 +12,8 @@ def get_image_loaders(debug=False, augment=False, batch_size=32, users=["Tilen",
         class_ids=range(users.__len__()),
         users=users,
         debug=debug, 
-        batch_size=batch_size
+        batch_size=batch_size,
+        augment=augment
         )
     
     if debug: print("get_image_loaders(): splitting data")
@@ -30,10 +31,11 @@ def get_image_loaders(debug=False, augment=False, batch_size=32, users=["Tilen",
 
 if __name__ == "__main__":
     print("----------------------------------------------------------------------------------------------------")
-    train_loader, val_loader = get_image_loaders(debug=True, augment=True, batch_size=32)
-    print(f"Train loader size: {len(train_loader)} batches")
-    print(f"Validation loader size: {len(val_loader)} batches")
+    train_loader, val_loader = get_image_loaders(debug=False, augment=True, batch_size=32)
     
+    count = 0
     for images, labels in train_loader:
         print(f"Batch shape: {images.shape}, Labels shape: {labels.shape}")
-        break  # Just to test the first batch
+        count += 1
+        if count >= 5:
+            break

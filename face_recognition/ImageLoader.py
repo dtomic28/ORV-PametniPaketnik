@@ -3,8 +3,61 @@ import cv2
 import os
 from keras.utils import Sequence
 
+def rain_augment(image, chance=0.2, intensity=0.5, debug=False):
+    if np.random.rand() < chance:
+        if debug: print("Applying rain augmentation")
+        h, w = image.shape[:2]
+        mask = np.zeros((h, w), dtype=np.float32)
+        for _ in range(10):
+            x1 = np.random.randint(0, w)
+            y1 = np.random.randint(0, h//2)
+            x2 = x1 + np.random.randint(-5, 5)
+            y2 = y1 + np.random.randint(h//2, h)
+            cv2.line(mask, (x1,y1), (x2,y2), 1.0, 1)
+        mask = cv2.GaussianBlur(mask, (5,5), 0)
+        image = image * (1 - intensity*np.expand_dims(mask, -1))
+        if debug: cv2.imwrite("rain_augment_mask.jpg", (mask * 255).astype(np.uint8))
+    return image
+def vaseline_augment(image, chance=0.2, intensity=0.5, debug=False):
+    if np.random.rand() < chance:
+        if debug: print("Applying vaseline augmentation")
+        h, w = image.shape[:2]
+        mask = np.zeros((h, w), dtype=np.float32)
+        for _ in range(5):
+            circleMask = np.zeros((h, w), dtype=np.float32)
+            x1 = np.random.randint(0, w)
+            y1 = np.random.randint(0, h)
+            cv2.circle(circleMask, (x1, y1), 15, (1.0, 1.0, 1.0), -1)
+            mask = cv2.addWeighted(circleMask, 0.1, mask, 1 - 0.1, 0)
+        image = image * (1 - intensity*np.expand_dims(mask, -1))
+        if debug: cv2.imwrite("vaseline_augment_mask.jpg", (mask * 255).astype(np.uint8))
+    return image
+def broken_camera_augment(image, chance=0.2, intensity=0.5, debug=False):	
+    if np.random.rand() < chance:
+        if debug: print("Applying broken camera augmentation")
+        h, w = image.shape[:2]
+        mask = np.zeros((h, w), dtype=np.float32)
+        for _ in range(10):
+            x1 = np.random.randint(0, w)
+            y1 = np.random.randint(0, h)
+            cv2.circle(mask, (x1, y1), 2, 1, -1)
+        image = image * (1 - intensity*np.expand_dims(mask, -1))
+        if debug: cv2.imwrite("broken_camera_augment_mask.jpg", (mask * 255).astype(np.uint8))
+    return image
+def covid_mask_augment(image, chance=0.2, debug=False):
+    if np.random.rand() < chance:
+        if debug: print("Applying COVID mask augmentation")
+        h, w = image.shape[:2]
+        cv2.rectangle(image, (0, (h//3)*2), (w, h), 1.0, -1)
+        
+        if debug: 
+            mask = np.zeros((h, w), dtype=np.float32)
+            cv2.rectangle(mask, (0, (h//3)*2), (w, h), 1.0, -1)
+            cv2.imwrite("covid_mask_augment_mask.jpg", (mask * 255).astype(np.uint8))
+    return image
+
 class Loader(Sequence):
-    def __init__(self, data_dir = "face_recognition\images", users = ["Tilen", "Tadej", "Tadej", "Randoms"], class_ids = range(4), batch_size=32, augment=False, debug=False, **kwargs):
+    def __init__(self, data_dir = "face_recognition\images", users = ["Tilen", "Tadej", "Tadej", "Randoms"], class_ids = range(4), batch_size=32, augment=False, debug=False, image_size=32, **kwargs):
         if debug: print("Loader(): __init__")
         super().__init__(**kwargs)
         self.data_dir = data_dir
@@ -15,6 +68,7 @@ class Loader(Sequence):
         self.debug = debug
         self.image_paths = []
         self.labels = []
+        self.image_size = image_size
 
         if debug: print("Loader(): getting image paths and labels")
         for class_id in class_ids:
@@ -24,7 +78,6 @@ class Loader(Sequence):
                     if file.endswith('.jpg'):
                         self.image_paths.append(os.path.join(class_dir, file))
                         self.labels.append(class_id)
-                        print(f"Image: {class_dir}, Label: {class_id}")
         
         self.labels = np.array(self.labels)
         
@@ -42,30 +95,21 @@ class Loader(Sequence):
         for path in batch_paths:
             img = cv2.imread(path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = cv2.resize(img, (64, 64))
+            img = cv2.resize(img, (self.image_size, self.image_size))
             img = img.astype(np.float32) / 255.0
 
-            if False: #self.augment: #gonna fix later
-                if np.random.rand() < 0.2:
-                    h, w = img.shape[:2]
-                    rain = np.zeros((h, w), dtype=np.float32)
-                    for _ in range(50):
-                        x1 = np.random.randint(0, w)
-                        y1 = np.random.randint(0, h//2)
-                        x2 = x1 + np.random.randint(-5, 5)
-                        y2 = y1 + np.random.randint(h//2, h)
-                        cv2.line(rain, (x1,y1), (x2,y2), 1.0, 1)
-                    rain = cv2.GaussianBlur(rain, (5,5), 0)
-                    img = img * (1 - 0.5*np.expand_dims(rain, -1))
-                
-                img = self.aug_transform(image=img)['image']
+            if self.augment:
+                img = rain_augment(img, chance=1, intensity=0.5, debug = self.debug)
+                img = vaseline_augment(img, chance=1, intensity=0.5, debug = self.debug)
+                img = broken_camera_augment(img, chance=1, intensity=0.5, debug = self.debug)
+                img = covid_mask_augment(img, chance=1, debug = self.debug)
                 
             batch_images.append(img)
             
         return np.array(batch_images), np.eye(len(self.class_ids))[batch_labels]
     
 class SubLoader(Loader):
-    def __init__(self, parent_gen, indices, augment=False):
+    def __init__(self, parent_gen, indices):
         super().__init__(
             data_dir = parent_gen.data_dir, 
             users = parent_gen.users,
