@@ -57,7 +57,7 @@ def covid_mask_augment(image, chance=0.2, debug=False):
     return image
 
 class Loader(Sequence):
-    def __init__(self, data_dir = "face_recognition\images", users = ["Tilen", "Tadej", "Tadej", "Randoms"], class_ids = range(4), batch_size=32, augment=False, debug=False, image_size=32, **kwargs):
+    def __init__(self, data_dir = "face_recognition\images", users = ["Tilen", "Tadej", "Tadej", "Randoms"], class_ids = range(4), batch_size=32, augment=False, debug=False, image_size=64, **kwargs):
         if debug: print("Loader(): __init__")
         super().__init__(**kwargs)
         self.data_dir = data_dir
@@ -99,10 +99,10 @@ class Loader(Sequence):
             img = img.astype(np.float32) / 255.0
 
             if self.augment:
-                img = rain_augment(img, chance=1, intensity=0.5, debug = self.debug)
-                img = vaseline_augment(img, chance=1, intensity=0.5, debug = self.debug)
-                img = broken_camera_augment(img, chance=1, intensity=0.5, debug = self.debug)
-                img = covid_mask_augment(img, chance=1, debug = self.debug)
+                img = rain_augment(img, chance=0.2, intensity=0.5, debug = self.debug)
+                img = vaseline_augment(img, chance=0.2, intensity=0.5, debug = self.debug)
+                img = broken_camera_augment(img, chance=0.2, intensity=0.5, debug = self.debug)
+                img = covid_mask_augment(img, chance=0.2, debug = self.debug)
                 
             batch_images.append(img)
             
@@ -116,7 +116,8 @@ class SubLoader(Loader):
             class_ids = parent_gen.class_ids, 
             batch_size = parent_gen.batch_size, 
             augment=parent_gen.augment, 
-            debug=parent_gen.debug
+            debug=parent_gen.debug,
+            image_size=parent_gen.image_size
             )
         self.image_paths = [parent_gen.image_paths[i] for i in indices]
         self.labels = parent_gen.labels[indices]
