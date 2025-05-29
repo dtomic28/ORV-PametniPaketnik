@@ -3,15 +3,18 @@ import mediapipe as mp
 import cv2
 
 # SPREMENTA IME NA SVOJ
-ime = "Tilen" # Tilen Danijel Tadej
+ime = "Tadej" # Tilen Danijel Tadej
 
 original_img_dir = f"face_recognition/images/{ime}/originals"
 processed_img_dir = f"face_recognition/images/{ime}/processed"
+os.makedirs(processed_img_dir, exist_ok=True)
+os.makedirs(original_img_dir, exist_ok=True)
 
 mp_face_detection = mp.solutions.face_detection
 mp_drawing = mp.solutions.drawing_utils
 
 for filename in os.listdir(original_img_dir):
+    
     file_path = os.path.join(original_img_dir, filename)
     if filename.lower().endswith(('.jpg', '.jpeg')):
         try:
