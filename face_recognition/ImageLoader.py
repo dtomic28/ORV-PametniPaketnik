@@ -57,7 +57,7 @@ def covid_mask_augment(image, chance=0.2, debug=False):
     return image
 
 class Loader(Sequence):
-    def __init__(self, data_dir = "face_recognition\images", users = ["Tilen", "Tadej", "Tadej", "Randoms"], class_ids = range(4), batch_size=32, augment=False, debug=False, image_size=64, **kwargs):
+    def __init__(self, data_dir = "face_recognition\images", users = ["Tilen", "Tadej", "Danijel", "Randoms"], class_ids = range(4), batch_size=32, augment=False, debug=False, image_size=64, **kwargs):
         if debug: print("Loader(): __init__")
         super().__init__(**kwargs)
         self.data_dir = data_dir
@@ -75,7 +75,7 @@ class Loader(Sequence):
             class_dir = os.path.join(data_dir, f"{self.users[class_id]}", "processed")
             if os.path.exists(class_dir):
                 for file in os.listdir(class_dir):
-                    if file.endswith('.jpg'):
+                    if file.lower().endswith(('.jpg', '.jpeg')):
                         self.image_paths.append(os.path.join(class_dir, file))
                         self.labels.append(class_id)
         
