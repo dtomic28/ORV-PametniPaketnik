@@ -171,8 +171,8 @@ def predict_image(image_path, model_path):
     class_id = np.argmax(pred)
     return class_id
 
-preprocess("Tilen")  #primer 
-train("Tilen") # primer
-print(predict_image("face_recognition/images/Tilen/originals/IMG_20250527_194319.jpg", "face_recognition/models/Tilen_model.h5"))  # primer
-
-#vrne 0 ce je pravilno 1 če je napačno
+if __name__ == '__main__':
+    preprocess("Tilen")  #primer 
+    train("Tilen") # primer
+    print(predict_image("face_recognition/images/Tilen/originals/IMG_20250527_194319.jpg", "face_recognition/models/Tilen_model.h5"))  # primer
+    #vrne 0 ce je pravilno 1 če je napačno

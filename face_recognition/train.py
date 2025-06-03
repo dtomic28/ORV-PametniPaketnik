@@ -61,21 +61,22 @@ def build_transfer_model(input_shape=(128, 128, 3), num_classes=2):
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-model = build_transfer_model(input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), num_classes=NUM_CLASSES)
-model.summary()
+if __name__ == '__main__':
+    model = build_transfer_model(input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), num_classes=NUM_CLASSES)
+    model.summary()
 
-callbacks = [
-    EarlyStopping(monitor='loss', patience=3, restore_best_weights=True),
-    ModelCheckpoint(filepath=MODEL_SAVE_PATH, save_best_only=True),
-    ReduceLROnPlateau(monitor='loss', factor=0.5, patience=2, verbose=1)
-]
+    callbacks = [
+        EarlyStopping(monitor='loss', patience=3, restore_best_weights=True),
+        ModelCheckpoint(filepath=MODEL_SAVE_PATH, save_best_only=True),
+        ReduceLROnPlateau(monitor='loss', factor=0.5, patience=2, verbose=1)
+    ]
 
-history = model.fit(
-    train_loader,
-    validation_data=val_loader,
-    epochs=EPOCHS,
-    callbacks=callbacks
-)
+    history = model.fit(
+        train_loader,
+        validation_data=val_loader,
+        epochs=EPOCHS,
+        callbacks=callbacks
+    )
 
 
 
