@@ -1,3 +1,5 @@
+import sys
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
@@ -9,11 +11,18 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLRO
 
 from getImageLoaders import get_image_loaders
 
+# --- Parse command line argument ---
+if len(sys.argv) < 2:
+    print("Usage: python train.py USERNAME")
+    sys.exit(1)
+
+USER = sys.argv[1]
+USERS = [USER, "Randoms"]
+MODEL_SAVE_PATH = os.path.join("models", f"{USER}_model.h5")
+
 IMAGE_SIZE = 128
 BATCH_SIZE = 16
 EPOCHS = 50
-USERS = ["Tilen", "Tadej", "Danijel"]
-MODEL_SAVE_PATH = "best_model.h5"
 
 train_loader, val_loader = get_image_loaders(
     debug=False,
@@ -23,19 +32,10 @@ train_loader, val_loader = get_image_loaders(
     image_size=IMAGE_SIZE
 )
 NUM_CLASSES = len(USERS)
-"""
-x_batch, y_batch = next(iter(train_loader))
-plt.figure(figsize=(10, 4))
-for i in range(min(6, len(x_batch))):
-    plt.subplot(2, 3, i+1)
-    plt.imshow(x_batch[i])
-    plt.title(f"Class {np.argmax(y_batch[i])}")
-    plt.axis('off')
-plt.tight_layout()
-plt.show()
 
-print("Train batch class distribution:", Counter(np.argmax(y_batch, axis=1)))
-"""
+print("Train class distribution:", Counter(train_loader.labels))
+print("Val class distribution:", Counter(val_loader.labels))
+
 def build_model():
     model = Sequential([
         Conv2D(16, (3, 3), activation='relu', input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3)),
@@ -60,7 +60,7 @@ model = build_model()
 model.summary()
 
 callbacks = [
-    EarlyStopping(monitor='loss', patience=5, restore_best_weights=True),
+    EarlyStopping(monitor='loss', patience=3, restore_best_weights=True),
     ModelCheckpoint(filepath=MODEL_SAVE_PATH, save_best_only=True),
     ReduceLROnPlateau(monitor='loss', factor=0.5, patience=2, verbose=1)
 ]
@@ -72,10 +72,8 @@ history = model.fit(
     callbacks=callbacks
 )
 
-"""
-#graf acc pa loss
+# Plot loss and accuracy
 plt.figure(figsize=(12, 5))
-
 plt.subplot(1, 2, 1)
 plt.plot(history.history['loss'], label='Train Loss')
 plt.plot(history.history['val_loss'], label='Val Loss')
@@ -91,7 +89,6 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.title('Accuracy over Epochs')
 plt.legend()
-
 plt.tight_layout()
 plt.show()
 
@@ -102,8 +99,6 @@ for x_batch, y_batch in val_loader:
 x_val = np.concatenate(x_vals, axis=0)
 y_val = np.concatenate(y_vals, axis=0)
 
-
-#confusion matrix
 y_pred = np.argmax(model.predict(x_val), axis=1)
 y_true = np.argmax(y_val, axis=1)
 cm = confusion_matrix(y_true, y_pred, labels=range(len(USERS)))
@@ -111,4 +106,3 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=USERS)
 disp.plot(cmap=plt.cm.Blues)
 plt.title("Confusion Matrix")
 plt.show()
-"""
