@@ -8,10 +8,13 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.layers import GlobalAveragePooling2D
+from tensorflow.keras.models import Model
 
 from getImageLoaders import get_image_loaders
 
-# --- Parse command line argument ---
+
 if len(sys.argv) < 2:
     print("Usage: python train.py USERNAME")
     sys.exit(1)
@@ -33,30 +36,33 @@ train_loader, val_loader = get_image_loaders(
 )
 NUM_CLASSES = len(USERS)
 
-print("Train class distribution:", Counter(train_loader.labels))
-print("Val class distribution:", Counter(val_loader.labels))
 
-def build_model():
-    model = Sequential([
-        Conv2D(16, (3, 3), activation='relu', input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3)),
-        MaxPooling2D(2, 2),
-        Dropout(0.2),
-        Conv2D(32, (3, 3), activation='relu'),
-        MaxPooling2D(2, 2),
-        Dropout(0.2),
-        Flatten(),
-        Dense(32, activation='relu'),
-        Dropout(0.3),
-        Dense(NUM_CLASSES, activation='softmax')
-    ])
-    model.compile(
-        optimizer='adam',
-        loss='categorical_crossentropy',
-        metrics=['accuracy']
-    )
+# Plot 5 sample images from the training set with their class names
+plt.figure(figsize=(15, 3))
+for i in range(5):
+    img, label = train_loader[i]
+    class_idx = np.argmax(label)
+    class_name = USERS[class_idx]
+    plt.subplot(1, 5, i + 1)
+    plt.imshow(img[0])  # <-- remove .astype(np.uint8)
+    plt.title(f"Class: {class_idx}")
+    plt.axis('off')
+plt.suptitle("Sample Training Images and Their Classes")
+plt.show()
+
+def build_transfer_model(input_shape=(128, 128, 3), num_classes=2):
+    base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=input_shape)
+    base_model.trainable = False  # Freeze base model
+
+    x = GlobalAveragePooling2D()(base_model.output)
+    x = Dropout(0.3)(x)
+    output = Dense(num_classes, activation='softmax')(x)
+
+    model = Model(inputs=base_model.input, outputs=output)
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-model = build_model()
+model = build_transfer_model(input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), num_classes=NUM_CLASSES)
 model.summary()
 
 callbacks = [
@@ -71,6 +77,9 @@ history = model.fit(
     epochs=EPOCHS,
     callbacks=callbacks
 )
+
+
+
 
 # Plot loss and accuracy
 plt.figure(figsize=(12, 5))
