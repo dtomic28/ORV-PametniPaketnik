@@ -1,13 +1,18 @@
 import os
+import sys
 import mediapipe as mp
 import cv2
 
 # SPREMENTA IME NA SVOJ
-ime = "Randoms"  # Tilen Danijel Tadej
+ime = sys.argv[1]  # Tilen Danijel Tadej
 
-original_img_dir = f"face_recognition/images/{ime}/originals"
-processed_img_dir = f"face_recognition/images/{ime}/processed"
+original_img_dir = f"images/{ime}/originals"
+processed_img_dir = f"images/{ime}/processed"
 
+os.makedirs(original_img_dir, exist_ok=True)
+os.makedirs(processed_img_dir, exist_ok=True)
+
+#TODO populate the originals here 
 
 print("Looking for images in:", os.path.abspath(original_img_dir))
 

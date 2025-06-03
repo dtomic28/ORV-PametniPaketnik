@@ -1,10 +1,11 @@
+import sys
 import cv2
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import os
 
-def predict_image(image_path, model_path="face_recognition\\best_model.h5"):
+def predict_image(image_path, model_path="face_recognition\\_model.h5"):
     print("Current working directory:", os.getcwd())
     
     model = tf.keras.models.load_model(model_path)
@@ -19,12 +20,13 @@ def predict_image(image_path, model_path="face_recognition\\best_model.h5"):
     img = np.expand_dims(img, axis=0) 
     pred = model.predict(img)
     class_id = np.argmax(pred)
-    confidence = np.max(pred)
-    
-    plt.imshow(img[0])  
-    plt.title(f"Class: {class_id}, Confidence: {confidence:.2f}")
-    plt.axis('off')
-    plt.show()
+    return class_id
     
 
-predict_image("face_recognition\\images\\Tadej\\originals\\20250529_092030.jpg")
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python predict.py IMAGE_PATH [MODEL_PATH]")
+        sys.exit(1)
+    image_path = sys.argv[1]
+    model_path = sys.argv[2]
+    print(predict_image(image_path, model_path))
