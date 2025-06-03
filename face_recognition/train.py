@@ -36,8 +36,7 @@ train_loader, val_loader = get_image_loaders(
 )
 NUM_CLASSES = len(USERS)
 
-
-# Plot 5 sample images from the training set with their class names
+"""
 plt.figure(figsize=(15, 3))
 for i in range(5):
     img, label = train_loader[i]
@@ -49,7 +48,7 @@ for i in range(5):
     plt.axis('off')
 plt.suptitle("Sample Training Images and Their Classes")
 plt.show()
-
+"""
 def build_transfer_model(input_shape=(128, 128, 3), num_classes=2):
     base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=input_shape)
     base_model.trainable = False  # Freeze base model
@@ -81,7 +80,7 @@ history = model.fit(
 
 
 
-# Plot loss and accuracy
+"""
 plt.figure(figsize=(12, 5))
 plt.subplot(1, 2, 1)
 plt.plot(history.history['loss'], label='Train Loss')
@@ -115,3 +114,4 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=USERS)
 disp.plot(cmap=plt.cm.Blues)
 plt.title("Confusion Matrix")
 plt.show()
+"""
