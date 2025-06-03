@@ -1,7 +1,7 @@
 import os
 import numpy as np
 from sklearn.model_selection import train_test_split
-from ImageLoader import Loader, SubLoader
+from face_recognition.ImageLoader import Loader, SubLoader
 
 def get_image_loaders(debug=False, augment=False, batch_size=32, users=["Tilen", "Danijel", "Tadej", "Randoms"], image_size=64):
     """
