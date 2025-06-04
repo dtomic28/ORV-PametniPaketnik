@@ -103,7 +103,6 @@ def train_binary_model(username):
     )
 
     model = build_model()
-
     os.makedirs(MODEL_PATH, exist_ok=True)
 
     callbacks = [
@@ -115,7 +114,7 @@ def train_binary_model(username):
         )
     ]
 
-    model.fit(
+    history = model.fit(
         train_gen,
         epochs=EPOCHS,
         validation_data=val_gen,
@@ -124,3 +123,5 @@ def train_binary_model(username):
 
     shutil.rmtree(temp_data_dir)
     print(f"[train] Model saved and temp data cleaned for: {username}")
+
+    return history
