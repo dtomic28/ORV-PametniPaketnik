@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  paketnik-api:
+    build: .
+    container_name: paketnik-api
+    ports:
+      - "5000:5000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ./face_recognition/images:/app/face_recognition/images
+      - ./face_recognition/models:/app/face_recognition/models
+      - ./face_recognition/temp_dataset:/app/face_recognition/temp_dataset
