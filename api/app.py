@@ -10,9 +10,10 @@ from face_recognition.train import train_binary_model
 from log_stream import log_stream, StreamToLogger
 
 app = Flask(__name__)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Redirect stdout and stderr to custom stream for logging
-sys.stdout = sys.stderr = StreamToLogger()
+#sys.stdout = sys.stderr = StreamToLogger()
 
 @app.route('/')
 def dashboard():
@@ -88,4 +89,4 @@ def predict_route(username):
             os.remove(temp_path)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)
