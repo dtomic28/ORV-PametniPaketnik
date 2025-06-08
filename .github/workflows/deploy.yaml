@@ -10,8 +10,10 @@ jobs:
     steps:
       - name: Pull latest and deploy in WSL
         run: |
-          wsl -d Ubuntu-22.04 -- bash -ic "
-            cd ~/ORV-PametniPaketnik &&
-            git pull origin main &&
+          wsl -d Ubuntu-22.04 -- bash << 'EOF'
+            cd ~/ORV-PametniPaketnik
+            git pull origin main
+            chmod +x ./deploy.sh
             ./deploy.sh
-          "
+          EOF
+
