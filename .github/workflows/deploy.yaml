@@ -13,6 +13,5 @@ jobs:
           wsl -d Ubuntu-22.04 -- bash -ic "
             cd ~/ORV-PametniPaketnik &&
             git pull origin main &&
-            chmod +x ./deploy.sh &&
             ./deploy.sh
           "
