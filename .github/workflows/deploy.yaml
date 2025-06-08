@@ -21,7 +21,7 @@ jobs:
       - name: Build and push with Docker Compose
         run: |
           COMMIT_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-          docker-compose build
+          docker compose build
           docker tag yourusername/orv-api yourusername/orv-api:latest
           docker tag yourusername/orv-api yourusername/orv-api:$COMMIT_TAG
           docker push yourusername/orv-api:latest
