@@ -46,7 +46,7 @@ def upload_images(username):
 
 @app.route('/train/<username>', methods=['POST'])
 def train_user(username):
-    thread = threading.Thread(target=run_pipeline, args=(username,))
+    thread = threading.Thread(target=run_pipeline, args=(username,), daemon=True)
     thread.start()
     print(f"[train] Training pipeline started for user: {username}")
     return jsonify({'message': f'Training started for {username}'}), 200

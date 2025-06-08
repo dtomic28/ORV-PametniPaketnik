@@ -2,7 +2,7 @@ import requests
 import sys
 import os
 
-BASE_URL = 'http://127.0.0.1:5000'
+BASE_URL = 'https://pp.dtomic.com/api/orv/'
 
 def upload_zip(username):
     url = f'{BASE_URL}/upload/{username}'

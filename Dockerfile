@@ -34,4 +34,5 @@ EXPOSE 5000
 WORKDIR /app/api
 
 # Launch the app via Gunicorn with async workers
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--worker-class", "gevent", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--worker-class", "gevent", "--timeout", "1200", "app:app"]
+

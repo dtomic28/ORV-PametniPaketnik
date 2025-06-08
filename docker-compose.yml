@@ -3,6 +3,7 @@ version: "3.8"
 services:
   paketnik-api:
     build: .
+    image: danimc55/orv-api
     container_name: paketnik-api
     ports:
       - "5000:5000"
